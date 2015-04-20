@@ -2,6 +2,7 @@ package br.com.acception.arautoapp;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +41,7 @@ public class ArautoMainActivity extends ActionBarActivity {
                 new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                log.i("Volley Teste", "Sucesso: "+response);
+                Log.i("Volley Teste", "Sucesso: " + response);
             }
         }, new Response.ErrorListener() {
             @Override
