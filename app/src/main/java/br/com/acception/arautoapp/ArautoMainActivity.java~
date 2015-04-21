@@ -64,9 +64,9 @@ public class ArautoMainActivity extends Activity {
     //chamadas volley
     public void callByJsonObjectRequest(View view){
         this.params = new HashMap<String, String>();
-        this.params.put("client_id", "8465b97ce7b211e48193207c8f043011");
-        this.params.put("client_secret", "84666584e7b211e48193207c8f043011");
-        this.params.put("grant_type", "client_credentials");
+        this.params.put("client_id", "");
+        this.params.put("client_secret", "");
+        this.params.put("grant_type", "");
         this.params.put("scopes", "");
 
         CustomJsonObjectRequest cjor = new CustomJsonObjectRequest(Method.POST, this.url, this.params,
