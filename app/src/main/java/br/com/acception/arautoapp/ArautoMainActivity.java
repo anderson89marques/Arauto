@@ -12,24 +12,32 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.Request.*;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.db4o.ext.Db4oException;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import br.com.acception.arautoapp.database.DB4OProvider;
+import br.com.acception.arautoapp.database.domain.Arauto;
 import br.com.acception.arautoapp.util.OperacaoAsyncTask;
 
 
 public class ArautoMainActivity extends Activity {
+    DB4OProvider dbprovider;
     Map<String, String> params;
     private RequestQueue rq;
     private String url;
@@ -43,17 +51,47 @@ public class ArautoMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_arauto_main);
         ed = (TextView) findViewById(R.id.textView);
-        url = "http://192.168.0.106:8080/gcm/criaGcm";
+        url = "http://192.168.0.106:8080/token";
         rq = Volley.newRequestQueue(ArautoMainActivity.this);
+        try {
+            dbprovider = DB4OProvider.getInstance(ArautoMainActivity.this);
+        } catch (Db4oException e){
+            Log.e("Erro no DB", e.getMessage());
+            e.printStackTrace();
+        }
+
+
+        //Iniciando o base de dados
+        this.initArautodb();
+    }
+
+    private void initArautodb(){
+        Log.d("INITDB", "inicializando");
+        List<Arauto> l = dbprovider.findAll();
+        if(l == null || l.isEmpty()) {
+            Log.d("INITDB", "banco está vazio");
+            Arauto a = new Arauto();
+            a.setClient_id("8465b97ce7b211e48193207c8f043011");
+            a.setClient_secret("84666584e7b211e48193207c8f043011");
+            a.setGrant_type("client_credentials");
+            dbprovider.store(a);
+        }
     }
 
     /*
     Método que vai registar o Android no google gcm server
      */
     public void registrarAndroidNoGoogle(View view){
-        OperacaoAsyncTask op = new OperacaoAsyncTask(this);
-        Void vo = null;
-        op.execute(vo);
+        Log.d("Register ID", "registrando android");
+        Arauto a = dbprovider.findAll().get(0);
+        if(a.getRegId().equalsIgnoreCase("")) {
+            Log.d("Não Registrado", "Registrando no gcm server");
+            OperacaoAsyncTask op = new OperacaoAsyncTask(this);
+            Void vo = null;
+            op.execute(vo);
+        }else {
+            Toast.makeText(ArautoMainActivity.this, "Já Registrado", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void MostrarResultado(String regid){
@@ -63,27 +101,45 @@ public class ArautoMainActivity extends Activity {
 
     //chamadas volley
     public void callByJsonObjectRequest(View view){
-        this.params = new HashMap<String, String>();
-        this.params.put("client_id", "8465b97ce7b211e48193207c8f043011");
-        this.params.put("client_secret", "84666584e7b211e48193207c8f043011");
-        this.params.put("grant_type", "client_credentials");
-        this.params.put("scopes", "");
+        Log.d("Android", "Enviando dados");
+        Arauto a = dbprovider.findAll().get(0);
 
-        CustomJsonObjectRequest cjor = new CustomJsonObjectRequest(Method.POST, this.url, this.params,
-                new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.i("Volley Teste", "Sucesso: " + response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(ArautoMainActivity.this, "Erro:" + error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+        if(!a.getRegId().equalsIgnoreCase("")){
+            final JSONObject jsonBody = new JSONObject();
 
+            try {
+                jsonBody.put("client_id", a.getClient_id());
+                jsonBody.put("client_secret", a.getClient_secret());
+                jsonBody.put("grant_type", a.getGrant_type());
+                jsonBody.put("scopes", "");
+
+                JsonObjectRequest req = new JsonObjectRequest(Method.POST, url, jsonBody,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                //try {
+                                Log.d("Response:", response.toString());
+                                //} catch (JSONException e) {
+                                //   e.printStackTrace();
+                                //}
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(ArautoMainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                        Log.d("Erro Nessa Buceta", "Error:" + error.getMessage());
+                        error.printStackTrace();
+                    }
+                });
+
+                rq.add(req);
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+        }else{
+            Toast.makeText(ArautoMainActivity.this, "Aplicação Ainda não Registrada", Toast.LENGTH_LONG).show();
+        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

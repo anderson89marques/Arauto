@@ -21,4 +21,14 @@
         android:layout_centerHorizontal="true"
         android:onClick="registrarAndroidNoGoogle" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registrat no khipu."
+        android:id="@+id/button2"
+        android:layout_below="@+id/textView"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView"
+        android:onClick="callByJsonObjectRequest" />
+
 </RelativeLayout>
