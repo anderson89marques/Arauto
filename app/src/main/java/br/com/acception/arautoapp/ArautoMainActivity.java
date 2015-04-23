@@ -33,14 +33,16 @@ import java.util.Map;
 
 import br.com.acception.arautoapp.database.DB4OProvider;
 import br.com.acception.arautoapp.database.domain.Arauto;
+import br.com.acception.arautoapp.util.EnviaDadosController;
 import br.com.acception.arautoapp.util.OperacaoAsyncTask;
 
 
 public class ArautoMainActivity extends Activity {
     DB4OProvider dbprovider;
     Map<String, String> params;
-    private RequestQueue rq;
-    private String url;
+    EnviaDadosController envd;
+    //private RequestQueue rq;
+    //private String url;
     GoogleCloudMessaging gcm;
     String regid;
     ProgressDialog progress;
@@ -51,14 +53,14 @@ public class ArautoMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_arauto_main);
         ed = (TextView) findViewById(R.id.textView);
-        url = "http://192.168.0.106:8080/token";
-        rq = Volley.newRequestQueue(ArautoMainActivity.this);
         try {
             dbprovider = DB4OProvider.getInstance(ArautoMainActivity.this);
         } catch (Db4oException e){
             Log.e("Erro no DB", e.getMessage());
             e.printStackTrace();
         }
+
+        this.envd = EnviaDadosController.getInstance(getApplicationContext());
 
 
         //Iniciando o base de dados
@@ -68,7 +70,7 @@ public class ArautoMainActivity extends Activity {
     private void initArautodb(){
         Log.d("INITDB", "inicializando");
         List<Arauto> l = dbprovider.findAll();
-        if(l == null || l.isEmpty()) {
+        if(l == null || l.isEmpty()  ) {
             Log.d("INITDB", "banco está vazio");
             Arauto a = new Arauto();
             a.setClient_id("8465b97ce7b211e48193207c8f043011");
@@ -100,9 +102,9 @@ public class ArautoMainActivity extends Activity {
     }
 
     //chamadas volley
-    public void callByJsonObjectRequest(View view){
+    public void registrarArautoNoKhipu(View view){
         Log.d("Android", "Enviando dados");
-        Arauto a = dbprovider.findAll().get(0);
+        final Arauto a = dbprovider.findAll().get(0);
 
         if(!a.getRegId().equalsIgnoreCase("")){
             final JSONObject jsonBody = new JSONObject();
@@ -112,27 +114,9 @@ public class ArautoMainActivity extends Activity {
                 jsonBody.put("client_secret", a.getClient_secret());
                 jsonBody.put("grant_type", a.getGrant_type());
                 jsonBody.put("scopes", "");
-
-                JsonObjectRequest req = new JsonObjectRequest(Method.POST, url, jsonBody,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                //try {
-                                Log.d("Response:", response.toString());
-                                //} catch (JSONException e) {
-                                //   e.printStackTrace();
-                                //}
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(ArautoMainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.d("Erro Nessa Buceta", "Error:" + error.getMessage());
-                        error.printStackTrace();
-                    }
-                });
-
-                rq.add(req);
+                String  path = "/token";
+                JSONObject resposta = this.envd.enviaDados(Method.POST, path, jsonBody);
+                a.setAccess_token(resposta.getString("body"));
             } catch (JSONException e){
                 e.printStackTrace();
             }

@@ -29,6 +29,6 @@
         android:layout_below="@+id/textView"
         android:layout_alignLeft="@+id/textView"
         android:layout_alignStart="@+id/textView"
-        android:onClick="callByJsonObjectRequest" />
+        android:onClick="registrarArautoNoKhipu" />
 
 </RelativeLayout>

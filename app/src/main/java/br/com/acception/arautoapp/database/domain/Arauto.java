@@ -9,7 +9,7 @@ import java.util.List;
  * Created by anderson on 21/04/15.
  */
 public class Arauto {
-    private String RegId = "";
+    private String regId = "";
     private String client_id = "";
     private String client_secret = "";
     private String access_token = "";
@@ -66,10 +66,10 @@ public class Arauto {
     }
 
     public String getRegId() {
-        return RegId;
+        return regId;
     }
 
     public void setRegId(String regId) {
-        RegId = regId;
+        regId = regId;
     }
 }
