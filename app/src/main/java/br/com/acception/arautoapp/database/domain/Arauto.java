@@ -9,6 +9,7 @@ import java.util.List;
  * Created by anderson on 21/04/15.
  */
 public class Arauto {
+    private Integer id;
     private String regId = "";
     private String client_id = "";
     private String client_secret = "";
@@ -16,6 +17,14 @@ public class Arauto {
     private String grant_type = "";
     private String chave = "";
     private List<String> telefones ;
+
+    public Integer getId(){
+        return id;
+    }
+
+    public void setId(Integer id){
+        this.id = id;
+    }
 
     public String getGrant_type() {
         return grant_type;
@@ -71,5 +80,10 @@ public class Arauto {
 
     public void setRegId(String regId) {
         regId = regId;
+    }
+
+    public String toString(){
+        return "ID: " + this.getId() + ",RegID: " + this.getRegId() +",Client_id: " + this.getClient_id()
+                + "Access_token: " + this.getAccess_token();
     }
 }

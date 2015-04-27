@@ -24,14 +24,14 @@ public class SqliteHelper extends SQLiteOpenHelper{
     private static final int VERSAO_BANCO = 1;
 
 
-    private static final String ARAUTO = "arauto";
-    private static final String  TELEFONE = "telefone";
+    public static final String ARAUTO = "arauto";
+    public static final String  TELEFONE = "telefone";
 
-    private static String TELEFONE_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS" +
+    private static String TELEFONE_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             TELEFONE + " (id INTEGER PRIMARY KEY, " +
-            "numero TEXT NULL;";
+            "numero TEXT NULL);";
 
-    private static String ARAUTO_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS" +
+    private static String ARAUTO_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
             ARAUTO + " (id INTEGER PRIMARY KEY, " +
             "regId TEXT NULL," +
             "client_id TEXT NULL," +
@@ -39,7 +39,8 @@ public class SqliteHelper extends SQLiteOpenHelper{
             "access_token TEXT NULL," +
             "grant_type TEXT NULL," +
             "chave TEXT NULL," +
-            "FOREIGN KEY (telefone_id) REFERENCES "+ TELEFONE +" (id) ON DELETE CASCADE;";
+            "telefone_id INTEGER NULL," +
+            "FOREIGN KEY (telefone_id) REFERENCES "+ TELEFONE +" (id) ON DELETE CASCADE);";
 
     public  void onOpen(SQLiteDatabase db){
         super.onOpen(db);
@@ -50,12 +51,14 @@ public class SqliteHelper extends SQLiteOpenHelper{
 
     public  SqliteHelper(Context context){
         super(context, NOME_BANCO_DADOS, null, VERSAO_BANCO);
+        Log.d("Helper", "Construtor");
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TELEFONE_CREATE_TABLE);
         db.execSQL(ARAUTO_CREATE_TABLE);
+        Log.d("Helper", "onCreate");
     }
 
     @Override

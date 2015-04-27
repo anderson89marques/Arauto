@@ -2,6 +2,7 @@ package br.com.acception.arautoapp;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,19 +27,21 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import br.com.acception.arautoapp.database.DB4OProvider;
+import br.com.acception.arautoapp.database.SqliteProvider;
 import br.com.acception.arautoapp.database.domain.Arauto;
 import br.com.acception.arautoapp.util.EnviaDadosController;
 import br.com.acception.arautoapp.util.OperacaoAsyncTask;
 
 
 public class ArautoMainActivity extends Activity {
-    DB4OProvider dbprovider;
+    SqliteProvider dbprovider;
     Map<String, String> params;
     EnviaDadosController envd;
     //private RequestQueue rq;
@@ -53,15 +56,9 @@ public class ArautoMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_arauto_main);
         ed = (TextView) findViewById(R.id.textView);
-        try {
-            dbprovider = DB4OProvider.getInstance(ArautoMainActivity.this);
-        } catch (Db4oException e){
-            Log.e("Erro no DB", e.getMessage());
-            e.printStackTrace();
-        }
 
+        this.dbprovider = new SqliteProvider(ArautoMainActivity.this);
         this.envd = EnviaDadosController.getInstance(getApplicationContext());
-
 
         //Iniciando o base de dados
         this.initArautodb();
@@ -69,15 +66,14 @@ public class ArautoMainActivity extends Activity {
 
     private void initArautodb(){
         Log.d("INITDB", "inicializando");
-        List<Arauto> l = dbprovider.findAll();
-        if(l == null || l.isEmpty()  ) {
-            Log.d("INITDB", "banco está vazio");
-            Arauto a = new Arauto();
-            a.setClient_id("8465b97ce7b211e48193207c8f043011");
-            a.setClient_secret("84666584e7b211e48193207c8f043011");
-            a.setGrant_type("client_credentials");
-            dbprovider.store(a);
-        }
+        try {
+            dbprovider.open();
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        };
+       dbprovider.inidb();
+       dbprovider.close();
     }
 
     /*
@@ -85,7 +81,15 @@ public class ArautoMainActivity extends Activity {
      */
     public void registrarAndroidNoGoogle(View view){
         Log.d("Register ID", "registrando android");
-        Arauto a = dbprovider.findAll().get(0);
+        try {
+            dbprovider.open();
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        };
+
+        Arauto a = dbprovider.getArauto();
+        dbprovider.close();
         if(a.getRegId().equalsIgnoreCase("")) {
             Log.d("Não Registrado", "Registrando no gcm server");
             OperacaoAsyncTask op = new OperacaoAsyncTask(this);
@@ -97,16 +101,30 @@ public class ArautoMainActivity extends Activity {
     }
 
     public void MostrarResultado(String regid){
+        try {
+            dbprovider.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         this.regid = regid;
+        ContentValues cv = new ContentValues();
+        cv.put("regId", regid);
+        dbprovider.updateArauto(cv);
         this.ed.setText(regid);
+        dbprovider.close();
     }
 
     //chamadas volley
     public void registrarArautoNoKhipu(View view){
         Log.d("Android", "Enviando dados");
-        final Arauto a = dbprovider.findAll().get(0);
+        try {
+            dbprovider.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        final Arauto a = dbprovider.getArauto();
 
-        if(!a.getRegId().equalsIgnoreCase("")){
+        if(!a.getRegId().equals("")){
             final JSONObject jsonBody = new JSONObject();
 
             try {
@@ -123,6 +141,7 @@ public class ArautoMainActivity extends Activity {
         }else{
             Toast.makeText(ArautoMainActivity.this, "Aplicação Ainda não Registrada", Toast.LENGTH_LONG).show();
         }
+        dbprovider.close();
     }
 
     @Override
