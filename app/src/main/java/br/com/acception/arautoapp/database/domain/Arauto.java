@@ -4,27 +4,27 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import co.uk.rushorm.core.RushObject;
+import co.uk.rushorm.core.RushObjectSerializer;
+import co.uk.rushorm.core.annotations.RushList;
+
 /**
 
  * Created by anderson on 21/04/15.
  */
-public class Arauto {
-    private Integer id;
+public class Arauto extends RushObject{
     private String regId = "";
     private String client_id = "";
     private String client_secret = "";
     private String access_token = "";
     private String grant_type = "";
     private String chave = "";
-    private List<String> telefones ;
 
-    public Integer getId(){
-        return id;
-    }
+    @RushList(classType = Telefone.class)
+    private List<Telefone> telefones ;
 
-    public void setId(Integer id){
-        this.id = id;
-    }
+    /*Sempre deve ter um Construtor vazio*/
+    public Arauto(){}
 
     public String getGrant_type() {
         return grant_type;
@@ -66,13 +66,7 @@ public class Arauto {
         this.chave = chave;
     }
 
-    public List<String> getTelefones() {
-        return telefones;
-    }
 
-    public void setTelefones(ArrayList<String> telefones) {
-        this.telefones = telefones;
-    }
 
     public String getRegId() {
         return regId;
@@ -83,7 +77,7 @@ public class Arauto {
     }
 
     public String toString(){
-        return "ID: " + this.getId() + ",RegID: " + this.getRegId() +",Client_id: " + this.getClient_id()
+        return "RegID: " + this.getRegId() +",Client_id: " + this.getClient_id()
                 + "Access_token: " + this.getAccess_token();
     }
 }

@@ -21,7 +21,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.db4o.ext.Db4oException;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import org.json.JSONException;
@@ -38,7 +37,8 @@ import br.com.acception.arautoapp.database.SqliteProvider;
 import br.com.acception.arautoapp.database.domain.Arauto;
 import br.com.acception.arautoapp.util.EnviaDadosController;
 import br.com.acception.arautoapp.util.OperacaoAsyncTask;
-
+import co.uk.rushorm.android.RushAndroid;
+import co.uk.rushorm.core.RushSearch;
 
 public class ArautoMainActivity extends Activity {
     SqliteProvider dbprovider;
@@ -57,23 +57,41 @@ public class ArautoMainActivity extends Activity {
         setContentView(R.layout.activity_arauto_main);
         ed = (TextView) findViewById(R.id.textView);
 
-        this.dbprovider = new SqliteProvider(ArautoMainActivity.this);
+        //Inicializando o banco
+        RushAndroid.initialize(getApplicationContext());
+
         this.envd = EnviaDadosController.getInstance(getApplicationContext());
 
-        //Iniciando o base de dados
-        this.initArautodb();
+        //Inicializando o base de dados
+        initArautodb();
     }
 
     private void initArautodb(){
-        Log.d("INITDB", "inicializando");
-        try {
-            dbprovider.open();
+       Log.d("INITDB", "inicializando");
+        Arauto a = new Arauto();
+       try{
 
-        }catch (SQLException e){
-            e.printStackTrace();
-        };
-       dbprovider.inidb();
-       dbprovider.close();
+           //a = new RushSearch().whereId("1").findSingle(Arauto.class);
+           if(true) {
+               a.setRegId("");
+               a.setAccess_token("");
+               a.setClient_id("8465b97ce7b211e48193207c8f043011");
+               a.setClient_secret("84666584e7b211e48193207c8f043011");
+               a.setGrant_type("client_credentials");
+               a.setChave("");
+               //dbprovider.inidb();
+               //dbprovider.close();
+               a.save();
+           }
+       } catch (NullPointerException e){
+           a = new Arauto();
+           a.setClient_id("8465b97ce7b211e48193207c8f043011");
+           a.setClient_secret("84666584e7b211e48193207c8f043011");
+           a.setGrant_type("client_credentials");
+           //dbprovider.inidb();
+           //dbprovider.close();
+           a.save();
+       }
     }
 
     /*
@@ -81,16 +99,9 @@ public class ArautoMainActivity extends Activity {
      */
     public void registrarAndroidNoGoogle(View view){
         Log.d("Register ID", "registrando android");
-        try {
-            dbprovider.open();
-
-        }catch (SQLException e){
-            e.printStackTrace();
-        };
-
-        Arauto a = dbprovider.getArauto();
-        dbprovider.close();
-        if(a.getRegId().equalsIgnoreCase("")) {
+        Arauto arauto = new RushSearch().whereId("1").findSingle(Arauto.class);
+        Log.d("Arauto toString()", arauto.toString());
+        if(arauto != null) {
             Log.d("Não Registrado", "Registrando no gcm server");
             OperacaoAsyncTask op = new OperacaoAsyncTask(this);
             Void vo = null;
@@ -101,30 +112,26 @@ public class ArautoMainActivity extends Activity {
     }
 
     public void MostrarResultado(String regid){
-        try {
-            dbprovider.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         this.regid = regid;
-        ContentValues cv = new ContentValues();
-        cv.put("regId", regid);
-        dbprovider.updateArauto(cv);
+        //ContentValues cv = new ContentValues();
+        //cv.put("regId", regid);
+        ///dbprovider.updateArauto(cv);
+        Arauto arauto = new RushSearch().whereId("1").findSingle(Arauto.class);
+        arauto.setRegId(regid);
+        arauto.save();
         this.ed.setText(regid);
-        dbprovider.close();
+        //dbprovider.close();
+        Arauto a = new RushSearch().whereId("1").findSingle(Arauto.class);
+        Log.d("Rush", a.getRegId());
     }
 
     //chamadas volley
     public void registrarArautoNoKhipu(View view){
         Log.d("Android", "Enviando dados");
-        try {
-            dbprovider.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        final Arauto a = dbprovider.getArauto();
 
-        if(!a.getRegId().equals("")){
+        final Arauto a = new RushSearch().whereId("1").findSingle(Arauto.class);
+
+        if(a != null){
             final JSONObject jsonBody = new JSONObject();
 
             try {
@@ -141,7 +148,7 @@ public class ArautoMainActivity extends Activity {
         }else{
             Toast.makeText(ArautoMainActivity.this, "Aplicação Ainda não Registrada", Toast.LENGTH_LONG).show();
         }
-        dbprovider.close();
+        //dbprovider.close();
     }
 
     @Override
