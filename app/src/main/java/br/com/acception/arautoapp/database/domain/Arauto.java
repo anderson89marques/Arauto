@@ -1,5 +1,8 @@
 package br.com.acception.arautoapp.database.domain;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,23 +11,28 @@ import java.util.List;
 
  * Created by anderson on 21/04/15.
  */
-public class Arauto {
-    private Integer id;
+public class Arauto extends Model {
+    @Column(name = "regId")
     private String regId = "";
+
+    @Column(name = "client_id")
     private String client_id = "";
+
+    @Column(name = "client_secret")
     private String client_secret = "";
+
+    @Column(name = "access_token")
     private String access_token = "";
+
+    @Column(name = "grant_type")
     private String grant_type = "";
+
+    @Column(name = "chave")
     private String chave = "";
-    private List<String> telefones ;
 
-    public Integer getId(){
-        return id;
-    }
+    //@Column(name = "nome")
+    //private List<String> telefones ;
 
-    public void setId(Integer id){
-        this.id = id;
-    }
 
     public String getGrant_type() {
         return grant_type;
@@ -66,20 +74,20 @@ public class Arauto {
         this.chave = chave;
     }
 
-    public List<String> getTelefones() {
+    /*public List<String> getTelefones() {
         return telefones;
     }
 
     public void setTelefones(ArrayList<String> telefones) {
         this.telefones = telefones;
     }
-
+    */
     public String getRegId() {
         return regId;
     }
 
     public void setRegId(String regId) {
-        regId = regId;
+        this.regId = regId;
     }
 
     public String toString(){

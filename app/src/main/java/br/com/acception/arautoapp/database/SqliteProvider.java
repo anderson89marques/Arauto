@@ -81,7 +81,6 @@ public class SqliteProvider extends SqliteHelper {
 
     public Arauto cursorToArauto(Cursor cursor){
         Arauto a = new Arauto();
-        a.setId(cursor.getInt(0));
         a.setRegId(cursor.getString(1));
         a.setClient_id(cursor.getString(2));
         a.setClient_secret(cursor.getString(3));

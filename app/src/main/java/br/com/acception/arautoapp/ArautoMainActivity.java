@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.activeandroid.query.Select;
 import com.android.volley.Request;
 import com.android.volley.Request.*;
 import com.android.volley.RequestQueue;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.com.acception.arautoapp.database.DatabaseHandler;
 import br.com.acception.arautoapp.database.SqliteProvider;
 import br.com.acception.arautoapp.database.domain.Arauto;
 import br.com.acception.arautoapp.util.EnviaDadosController;
@@ -43,12 +45,11 @@ public class ArautoMainActivity extends Activity {
     SqliteProvider dbprovider;
     Map<String, String> params;
     EnviaDadosController envd;
-    //private RequestQueue rq;
-    //private String url;
     GoogleCloudMessaging gcm;
     String regid;
     ProgressDialog progress;
     TextView ed;
+    DatabaseHandler dbh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +57,9 @@ public class ArautoMainActivity extends Activity {
         setContentView(R.layout.activity_arauto_main);
         ed = (TextView) findViewById(R.id.textView);
 
-        this.dbprovider = new SqliteProvider(ArautoMainActivity.this);
+        //this.dbprovider = new SqliteProvider(ArautoMainActivity.this);
         this.envd = EnviaDadosController.getInstance(getApplicationContext());
+        this.dbh = new DatabaseHandler();
 
         //Iniciando o base de dados
         this.initArautodb();
@@ -65,14 +67,10 @@ public class ArautoMainActivity extends Activity {
 
     private void initArautodb(){
         Log.d("INITDB", "inicializando");
-        try {
-            dbprovider.open();
-
-        }catch (SQLException e){
-            e.printStackTrace();
-        };
-       dbprovider.inidb();
-       dbprovider.close();
+        Arauto a = this.dbh.getArauto();
+        if(a == null){
+            this.dbh.initdb();
+        }
     }
 
     /*
@@ -80,16 +78,10 @@ public class ArautoMainActivity extends Activity {
      */
     public void registrarAndroidNoGoogle(View view){
         Log.d("Register ID", "registrando android");
-        try {
-            dbprovider.open();
+        Arauto a = this.dbh.getArauto();
 
-        }catch (SQLException e){
-            e.printStackTrace();
-        };
-
-        Arauto a = dbprovider.getArauto();
-        dbprovider.close();
-        if(a.getRegId().equalsIgnoreCase("")) {
+        Log.d("REGISTRAR GOOGLE", a.toString());
+        if(a != null && a.getRegId().equals("")) {
             Log.d("Não Registrado", "Registrando no gcm server");
             OperacaoAsyncTask op = new OperacaoAsyncTask(this);
             Void vo = null;
@@ -100,30 +92,25 @@ public class ArautoMainActivity extends Activity {
     }
 
     public void MostrarResultado(String regid){
-        try {
-            dbprovider.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
         this.regid = regid;
-        ContentValues cv = new ContentValues();
-        cv.put("regId", regid);
-        dbprovider.updateArauto(cv);
-        this.ed.setText(regid);
-        dbprovider.close();
+        Arauto a = this.dbh.getArauto();
+        if(a != null){
+            a.setRegId(this.regid);
+            a.save();
+            this.ed.setText(regid);
+        }
+        a = this.dbh.getArauto();
+        Log.d("MOSTRAR RESULTADO", a.toString());
     }
 
     //chamadas volley
     public void registrarArautoNoKhipu(View view){
         Log.d("Android", "Enviando dados");
-        try {
-            dbprovider.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        final Arauto a = dbprovider.getArauto();
 
-        if(!a.getRegId().equals("")){
+        final Arauto a = this.dbh.getArauto();
+
+        if(a != null && a.getAccess_token().equals("")){
             final JSONObject jsonBody = new JSONObject();
 
             try {
@@ -133,14 +120,19 @@ public class ArautoMainActivity extends Activity {
                 jsonBody.put("scopes", "");
                 String  path = "/token";
                 JSONObject resposta = this.envd.enviaDados(Method.POST, path, jsonBody);
+
                 a.setAccess_token(resposta.getString("body"));
+                a.save();
             } catch (JSONException e){
                 e.printStackTrace();
             }
         }else{
-            Toast.makeText(ArautoMainActivity.this, "Aplicação Ainda não Registrada", Toast.LENGTH_LONG).show();
+            Toast.makeText(ArautoMainActivity.this, "Aplicação Já Registrada no khipu", Toast.LENGTH_LONG).show();
         }
-        dbprovider.close();
+    }
+
+    public void registrarAssociacaoNoKhipu(){
+
     }
 
     @Override
