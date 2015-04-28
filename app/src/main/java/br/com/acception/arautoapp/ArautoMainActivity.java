@@ -21,7 +21,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.db4o.ext.Db4oException;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import org.json.JSONException;
