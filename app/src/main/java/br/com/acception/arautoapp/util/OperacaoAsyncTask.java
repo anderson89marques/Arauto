@@ -30,7 +30,7 @@ public class OperacaoAsyncTask extends AsyncTask<Void, Void, Void> {
 	@Override
     protected void onPreExecute()
     {
-		progress = ProgressDialog.show(contexto, "Pegando Regid no google...", "Aguarde um pouquinho XD...");
+        progress = ProgressDialog.show(contexto, "Pegando Regid no google...", "Aguarde um pouquinho XD...");
     }				
 	
 	@Override
@@ -64,7 +64,7 @@ public class OperacaoAsyncTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void res)
     {
 		ArautoMainActivity ope = (ArautoMainActivity) contexto;
-		progress.dismiss();
-		ope.MostrarResultado(this.regid);
+
+		ope.MostrarResultado(this.regid, progress);
     }
 }

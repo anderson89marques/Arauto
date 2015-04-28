@@ -21,7 +21,7 @@ import br.com.acception.arautoapp.ArautoMainActivity;
  */
 public class EnviaDadosController {
     private static EnviaDadosController enviaDadosController= null;
-    private String url = "http://192.168.0.106:8080";
+    private String url = "http://192.168.1.140:8080";
     private Context context;
     private RequestQueue rq;
     private JSONObject resposta;
@@ -48,6 +48,7 @@ public class EnviaDadosController {
     public JSONObject enviaDados(int metedo, String path, JSONObject jsonObject){
         final JSONObject resposta;
         resposta = null;
+        Log.d("RESPOSTA setada ", "valor null");
         try {
             JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url + path, jsonObject,
                     new Response.Listener<JSONObject>() {
@@ -60,11 +61,11 @@ public class EnviaDadosController {
                             //    e.printStackTrace();
                             //}
                         }
-                    }, new Response.ErrorListener() {
+                    },  new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Toast.makeText(context, "Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.d("Erro Nessa Buceta", "Error:" + error.getMessage());
+                    Log.d("Erro", "Error:" + error.getMessage());
                     error.printStackTrace();
                 }
             });

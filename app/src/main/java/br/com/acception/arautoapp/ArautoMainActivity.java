@@ -9,29 +9,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.activeandroid.query.Select;
-import com.android.volley.Request;
 import com.android.volley.Request.*;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import br.com.acception.arautoapp.database.DatabaseHandler;
@@ -39,7 +24,7 @@ import br.com.acception.arautoapp.database.SqliteProvider;
 import br.com.acception.arautoapp.database.domain.Arauto;
 import br.com.acception.arautoapp.util.EnviaDadosController;
 import br.com.acception.arautoapp.util.OperacaoAsyncTask;
-
+import android.telephony.TelephonyManager;
 
 public class ArautoMainActivity extends Activity {
     SqliteProvider dbprovider;
@@ -91,8 +76,8 @@ public class ArautoMainActivity extends Activity {
         }
     }
 
-    public void MostrarResultado(String regid){
-
+    public void MostrarResultado(String regid, ProgressDialog progress){
+        this.progress = progress;
         this.regid = regid;
         Arauto a = this.dbh.getArauto();
         if(a != null){
@@ -102,10 +87,11 @@ public class ArautoMainActivity extends Activity {
         }
         a = this.dbh.getArauto();
         Log.d("MOSTRAR RESULTADO", a.toString());
+        registrarArautoNoKhipu();
+        registrarRegIdNoKhipu();
     }
 
-    //chamadas volley
-    public void registrarArautoNoKhipu(View view){
+    public void registrarArautoNoKhipu(){
         Log.d("Android", "Enviando dados");
 
         final Arauto a = this.dbh.getArauto();
@@ -119,8 +105,9 @@ public class ArautoMainActivity extends Activity {
                 jsonBody.put("grant_type", a.getGrant_type());
                 jsonBody.put("scopes", "");
                 String  path = "/token";
+                Log.d("RESPOSTA", "Antes de enviar dados");
                 JSONObject resposta = this.envd.enviaDados(Method.POST, path, jsonBody);
-
+                Log.d("RESPOSTA", resposta.toString());
                 a.setAccess_token(resposta.getString("body"));
                 a.save();
             } catch (JSONException e){
@@ -131,8 +118,28 @@ public class ArautoMainActivity extends Activity {
         }
     }
 
-    public void registrarAssociacaoNoKhipu(){
+    public void registrarRegIdNoKhipu(){
 
+        final JSONObject jsonBody = new JSONObject();
+        final JSONArray jsonArray = new JSONArray();
+        jsonArray.put("984593967");
+        final Arauto a = this.dbh.getArauto();
+        try {
+
+            jsonBody.put("access_token", a.getAccess_token());
+            jsonBody.put("RegId", a.getRegId());
+            jsonBody.put("telefones", jsonArray);
+            jsonBody.put("senha_registro_android", "123");
+
+            String  path = "/gcm/criarGcm";
+            JSONObject resposta = this.envd.enviaDados(Method.POST, path, jsonBody);
+
+            a.setAccess_token(resposta.getString("body"));
+            a.save();
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        this.progress.dismiss();
     }
 
     @Override
