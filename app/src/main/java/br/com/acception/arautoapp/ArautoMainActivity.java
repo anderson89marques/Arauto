@@ -43,8 +43,8 @@ public class ArautoMainActivity extends Activity {
         ed = (TextView) findViewById(R.id.textView);
 
         //this.dbprovider = new SqliteProvider(ArautoMainActivity.this);
-        this.envd = EnviaDadosController.getInstance(getApplicationContext());
-        this.dbh = new DatabaseHandler();
+        this.envd = EnviaDadosController.getInstance(this);
+        this.dbh = new DatabaseHandler(); //transformar em singleton
 
         //Iniciando o base de dados
         this.initArautodb();
@@ -76,20 +76,49 @@ public class ArautoMainActivity extends Activity {
         }
     }
 
-    public void MostrarResultado(String regid, ProgressDialog progress){
+    public void saveRegId(String regid, ProgressDialog progress){
         this.progress = progress;
         this.regid = regid;
         Arauto a = this.dbh.getArauto();
+
         if(a != null){
             a.setRegId(this.regid);
-            a.save();
+            //a.save();
             this.ed.setText(regid);
         }
         a = this.dbh.getArauto();
         Log.d("MOSTRAR RESULTADO", a.toString());
         registrarArautoNoKhipu();
-        registrarRegIdNoKhipu();
+        //registrarRegIdNoKhipu();
     }
+
+    public void switchMetodosArautoForKhipu(int metodokhipu){
+        final Arauto a = this.dbh.getArauto();
+
+        switch (metodokhipu){
+            case 1: saveAccesToken(a, this.envd.getResposta());
+                break;
+            case 2: alertaRegistroRegId(this.envd.getResposta());
+
+        }
+    }
+
+    public void saveAccesToken(Arauto a, JSONObject resposta){
+        Log.d("saveAccessToken", "resposta"+resposta.toString());
+        try{
+            a.setAccess_token(resposta.getString("access_token"));
+            //a.save();
+            registrarRegIdNoKhipu();
+        } catch( JSONException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void alertaRegistroRegId(JSONObject resposta){
+        Toast.makeText(this, "Resposta:"+resposta.toString(),Toast.LENGTH_LONG ).show();
+    }
+
 
     public void registrarArautoNoKhipu(){
         Log.d("Android", "Enviando dados");
@@ -106,10 +135,8 @@ public class ArautoMainActivity extends Activity {
                 jsonBody.put("scopes", "");
                 String  path = "/token";
                 Log.d("RESPOSTA", "Antes de enviar dados");
-                JSONObject resposta = this.envd.enviaDados(Method.POST, path, jsonBody);
-                Log.d("RESPOSTA", resposta.toString());
-                a.setAccess_token(resposta.getString("body"));
-                a.save();
+                this.envd.enviaDados(1, Method.GET, path, jsonBody);
+                //Log.d("RESPOSTA", resposta.toString());
             } catch (JSONException e){
                 e.printStackTrace();
             }
@@ -124,6 +151,7 @@ public class ArautoMainActivity extends Activity {
         final JSONArray jsonArray = new JSONArray();
         jsonArray.put("984593967");
         final Arauto a = this.dbh.getArauto();
+
         try {
 
             jsonBody.put("access_token", a.getAccess_token());
@@ -132,10 +160,7 @@ public class ArautoMainActivity extends Activity {
             jsonBody.put("senha_registro_android", "123");
 
             String  path = "/gcm/criarGcm";
-            JSONObject resposta = this.envd.enviaDados(Method.POST, path, jsonBody);
-
-            a.setAccess_token(resposta.getString("body"));
-            a.save();
+            this.envd.enviaDados(2, Method.POST, path, jsonBody);
         } catch (JSONException e){
             e.printStackTrace();
         }

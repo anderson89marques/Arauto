@@ -15,13 +15,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.com.acception.arautoapp.ArautoMainActivity;
+import br.com.acception.arautoapp.database.domain.Arauto;
 
 /**
  * Created by anderson on 22/04/15.
  */
 public class EnviaDadosController {
     private static EnviaDadosController enviaDadosController= null;
-    private String url = "http://192.168.1.140:8080";
+    private String url = "http://192.168.0.107:6543/khipu";
     private Context context;
     private RequestQueue rq;
     private JSONObject resposta;
@@ -45,18 +46,28 @@ public class EnviaDadosController {
         return this.resposta;
     }
 
-    public JSONObject enviaDados(int metedo, String path, JSONObject jsonObject){
-        final JSONObject resposta;
-        resposta = null;
+    public ArautoMainActivity getArautoMainActivity(){
+        ArautoMainActivity ope = (ArautoMainActivity) this.context;
+        return ope;
+    }
+
+    public JSONObject enviaDados(final int metodokhipu,int metodo, String path, JSONObject jsonObject){
+
         Log.d("RESPOSTA setada ", "valor null");
         try {
-            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url + path, jsonObject,
+            if(metodokhipu == 1){ //método GET
+                //O jsonObject é colocado na url para que a requisição seja aceita no servidor.
+                path += "?q="+jsonObject.toString();
+            }
+            JsonObjectRequest req = new JsonObjectRequest(metodo, url + path, jsonObject,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             //try {
                                 Log.d("Response:", response.toString());
                                 setResposta(response);
+
+                                getArautoMainActivity().switchMetodosArautoForKhipu(metodokhipu);
                             //} catch (JSONException e) {
                             //    e.printStackTrace();
                             //}

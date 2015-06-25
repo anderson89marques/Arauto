@@ -21,25 +21,4 @@
         android:layout_centerHorizontal="true"
         android:onClick="registrarAndroidNoGoogle" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Registrat no khipu."
-        android:id="@+id/button2"
-        android:layout_below="@+id/textView"
-        android:layout_alignLeft="@+id/textView"
-        android:layout_alignStart="@+id/textView"
-        android:onClick="registrarArautoNoKhipu" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="registrar regId"
-        android:id="@+id/button3"
-        android:layout_below="@+id/button2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="52dp"
-        android:clickable="true"
-        android:onClick="registrarAndroidNoGoogle" />
-
 </RelativeLayout>

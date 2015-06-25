@@ -36,7 +36,7 @@ public class OperacaoAsyncTask extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected Void doInBackground(Void... params) {
 		// TODO Auto-generated method stub
-		Map<String, String> parameters = new HashMap<String, String>();
+		//Map<String, String> parameters = new HashMap<String, String>();
 
         String msg = "";
         while (true) {
@@ -64,7 +64,6 @@ public class OperacaoAsyncTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void res)
     {
 		ArautoMainActivity ope = (ArautoMainActivity) contexto;
-
-		ope.MostrarResultado(this.regid, progress);
+		ope.saveRegId(this.regid, progress);
     }
 }

@@ -17,8 +17,8 @@ public class DatabaseHandler {
 
     public void initdb(){
         Arauto a = new Arauto();
-        a.setClient_id("90a30f52edd711e4b261207c8f043011");
-        a.setClient_secret("90a3b196edd711e4b261207c8f043011");
+        a.setClient_id("256b6b961af311e5aa0a463eb8bddccd");
+        a.setClient_secret("256be5e41af311e5aa0a463eb8bddccd");
         a.setGrant_type("client_credentials");
         a.save();
     }
