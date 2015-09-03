@@ -83,7 +83,7 @@ public class ArautoMainActivity extends Activity {
 
         if(a != null){
             a.setRegId(this.regid);
-            //a.save();
+            a.save();
             this.ed.setText(regid);
         }
         a = this.dbh.getArauto();
@@ -107,7 +107,7 @@ public class ArautoMainActivity extends Activity {
         Log.d("saveAccessToken", "resposta"+resposta.toString());
         try{
             a.setAccess_token(resposta.getString("access_token"));
-            //a.save();
+            a.save();
             registrarRegIdNoKhipu();
         } catch( JSONException e){
             e.printStackTrace();
@@ -157,7 +157,7 @@ public class ArautoMainActivity extends Activity {
             jsonBody.put("access_token", a.getAccess_token());
             jsonBody.put("RegId", a.getRegId());
             jsonBody.put("telefones", jsonArray);
-            jsonBody.put("senha_registro_android", "123");
+            jsonBody.put("senha_registro", "123");
 
             String  path = "/gcm/criarGcm";
             this.envd.enviaDados(2, Method.POST, path, jsonBody);

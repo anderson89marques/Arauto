@@ -1,4 +1,4 @@
-package br.com.acception.arautoapp;
+package br.com.acception.arautoapp.gcmhandlers;
 
 /**
  * Created by anderson on 16/01/15.

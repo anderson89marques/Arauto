@@ -34,13 +34,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver android:name=".gcmhandlers.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
                 <category android:name="br.com.acception.arautoapp"/>
             </intent-filter>
         </receiver>
-        <service android:name=".GcmMessageHandler"/>
+        <service android:name=".gcmhandlers.GcmMessageHandler"/>
         <meta-data android:name="com.google.android.gms.version" android:value="3100000"/>
     </application>
 

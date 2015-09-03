@@ -22,7 +22,6 @@ import br.com.acception.arautoapp.database.domain.Arauto;
  */
 public class EnviaDadosController {
     private static EnviaDadosController enviaDadosController= null;
-    private String url = "http://192.168.0.107:6543/khipu";
     private Context context;
     private RequestQueue rq;
     private JSONObject resposta;
@@ -59,7 +58,7 @@ public class EnviaDadosController {
                 //O jsonObject é colocado na url para que a requisição seja aceita no servidor.
                 path += "?q="+jsonObject.toString();
             }
-            JsonObjectRequest req = new JsonObjectRequest(metodo, url + path, jsonObject,
+            JsonObjectRequest req = new JsonObjectRequest(metodo, Constantes.url + path, jsonObject,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
